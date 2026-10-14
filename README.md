@@ -15,9 +15,9 @@ AgriSense AI directly supports:
 ---
 
 ## 2. Technology Stack
-- **Frontend**: React 19, TypeScript, Tailwind CSS, Lucide Icons, SVG Data Visualizations.
-- **Backend & Model Serving**: Express.js with TypeScript (`server.ts`) in AI Studio; dedicated Python FastAPI (`backend/app/main.py`) for standalone deployment.
-- **Machine Learning Pipeline**: MobileNetV2 (TensorFlow / Keras), Transfer Learning, PlantVillage Dataset (54,305 images across 38 classes), Scikit-learn evaluation metrics.
+- **Frontend**: React 19, TypeScript, Tailwind CSS, Lucide Icons, SVG Data Visualizations, Modular UI component architecture (`src/components/ui/`, `src/services/`).
+- **Backend & Model Serving**: Express.js with TypeScript (`backend/src/`), modular controllers, services, routes, and data persistence; dedicated Python FastAPI (`backend/python/main.py`) for standalone deployment.
+- **Machine Learning Pipeline**: MobileNetV2 (TensorFlow / Keras), Transfer Learning, PlantVillage Dataset (54,305 images across 38 classes), Scikit-learn evaluation metrics (`ml/`).
 - **Multimodal AI**: Google Gemini 3.8 Flash Vision fallback via `@google/genai` TypeScript SDK (server-side only with User-Agent telemetry).
 - **Data Persistence**: File-backed JSON history engine (`analysis_history.json`).
 
@@ -26,29 +26,39 @@ AgriSense AI directly supports:
 ## 3. Project Architecture
 
 ```
-+-------------------------------------------------------------+
-|               AgriSense AI Frontend (React + TS)            |
-|  - Drag & Drop Leaf Upload (JPG, JPEG, PNG, WebP)           |
-|  - 1-Click Calibrated Leaf Samples (Blight, Rust, Healthy)  |
-|  - Real-time Diagnostic Dashboard & SDG Impact Monitor      |
-|  - Disease Reference Library & Crop Care Advisor            |
-+------------------------------+------------------------------+
-                               |
-                               | REST API (Port 3000)
-                               v
-+-------------------------------------------------------------+
-|             Express.js Application Server (server.ts)       |
-|  - /health & /api/health                                    |
-|  - /api/crops & /api/diseases                               |
-|  - /api/predict (Multipart / JSON Base64)                   |
-|  - /api/assistant/ask                                       |
-|  - /api/history (Persistent JSON Store)                     |
-+---------------+-----------------------------+---------------+
-                |                             |
-                v                             v
-   [MobileNetV2 Classifier]          [Gemini 3.8 Flash Vision]
-   Transfer Learning Backbone        Multimodal Diagnostic
-   38 PlantVillage Classes           AI-Assisted Assessment
+agrisense-ai/
+├── backend/
+│   ├── src/                         # Modular Express.js TypeScript backend
+│   │   ├── config/                  # Environment & Gemini configurations
+│   │   ├── controllers/             # Health, crops, diseases, predict, history, assistant
+│   │   ├── data/                    # Plant classes, disease knowledge, crop catalog
+│   │   ├── middleware/              # Error handling & request logging
+│   │   ├── routes/                  # Express REST routes mounted at /api
+│   │   ├── services/                # Gemini AI, Classifier, History, Disease services
+│   │   ├── types/                   # Backend TypeScript types
+│   │   ├── app.ts                   # Express app factory
+│   │   └── server.ts                # Server startup & Vite dev/prod middleware
+│   └── python/                      # Standalone Python FastAPI microservice
+│       ├── main.py                  # FastAPI model serving endpoints
+│       └── requirements.txt         # Python dependencies
+├── ml/                              # Machine learning research pipeline
+│   ├── train.py                     # MobileNetV2 training script
+│   ├── evaluate.py                  # Model evaluation metrics
+│   ├── predict.py                   # CLI inference script
+│   ├── preprocessing.py             # Image augmentations
+│   ├── class_labels.json            # 38 PlantVillage classes mapping
+│   └── README.md                    # Research documentation
+├── src/                             # React 19 frontend
+│   ├── components/                  # Navigation, layout, and domain components
+│   │   └── ui/                      # Reusable design system (Badge, Button, Card, Modal, etc.)
+│   ├── pages/                       # Route pages (Dashboard, Scanner, Library, etc.)
+│   ├── services/                    # Modular client services (apiClient, health, predict, etc.)
+│   ├── types/                       # Shared domain TypeScript types
+│   ├── utils/                       # Image compression & client inference fallback
+│   ├── index.css                    # Design tokens & glassmorphic styles
+│   └── App.tsx                      # Root application
+├── server.ts                        # Clean application entry point
+└── package.json                     # Project scripts and dependencies
 ```
 
 ---
